@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <item android:id="@+id/action_refresh"
+          android:title="@string/action_refresh"
+          android:orderInCategory="100"
+          android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_refresh"/>
+    <item android:id="@+id/action_set_article_filter"
+          android:title="@string/action_set_source"
+          android:orderInCategory="200"
+          android:showAsAction="always"
+        android:icon="@drawable/filterico"/>
+    <item android:id="@+id/action_settings"
+          android:title="@string/action_settings"
+          android:orderInCategory="300"
+          android:showAsAction="never"
+        android:icon="@drawable/ic_menu_settings"/>
+    <item android:id="@+id/action_show_licenses"
+          android:title="@string/software_licenses_string"
+          android:orderInCategory="400"
+          android:showAsAction="never"/>
+</menu>

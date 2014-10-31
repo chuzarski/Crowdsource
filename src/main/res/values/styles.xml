@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="ListItemStyle">
+        <item name="android:textColor">#000000</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="ListSubItemStyle">
+        <item name="android:textColor">#2e2e2e</item>
+        <item name="android:textSize">8sp</item>
+    </style>
+
+</resources>

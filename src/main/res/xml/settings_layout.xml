@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/setting_category_posts">
+        <EditTextPreference
+            android:id="@+id/setting_post_limit"
+            android:key="setting_post_limit"
+            android:defaultValue="20"
+            android:title="@string/setting_post_limit"
+            android:persistent="true"
+            android:inputType="number"/>
+        <ListPreference
+            android:key="setting_news_channel"
+            android:defaultValue="0"
+            android:persistent="true"
+            android:title="@string/setting_default_channel"/>
+        <ListPreference
+            android:key="setting_default_sort"
+            android:defaultValue="1"
+            android:persistent="true"
+            android:title="@string/setting_default_sort"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

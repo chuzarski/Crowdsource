@@ -1,0 +1,59 @@
+buildscript {
+    repositories {
+        maven { url 'http://download.crashlytics.com/maven' }
+    }
+
+    dependencies {
+        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+    }
+}
+apply plugin: 'com.android.application'
+apply plugin: 'crashlytics'
+
+repositories {
+    maven { url 'http://download.crashlytics.com/maven' }
+    mavenCentral()
+}
+
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
+
+    defaultConfig {
+        applicationId "net.chuzarski.crowdednews"
+        minSdkVersion 15
+        targetSdkVersion 19
+        versionCode 2
+        versionName "google-play-first-release"
+    }
+    buildTypes {
+        release {
+            runProguard false
+        }
+        debugPassaround {
+            debuggable false
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //test dependencies
+    androidTestCompile 'org.assertj:assertj-core:1.6.1'
+    //standard
+    compile 'com.jakewharton.timber:timber:2.4.+'
+    compile 'org.apache.commons:commons-io:1.3.2'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.path:android-priority-jobqueue:1.1.2'
+    compile 'de.greenrobot:eventbus:2.2.1'
+    compile 'com.crashlytics.android:crashlytics:1.+'
+
+    compile 'com.android.support:support-v4:19.0.+'
+}

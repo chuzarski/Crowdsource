@@ -1,0 +1,6 @@
+/build
+.DS_Store
+crashlytics.properties
+app.iml
+src/main/assets/crashlytics-build.properties
+src/main/res/values/com_crashlytics_export_strings.xml

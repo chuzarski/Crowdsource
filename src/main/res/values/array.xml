@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--THESE MUST MATCH RedditSources-->
+    <!--News channels-->
+    <string-array name="news_channels_strings">
+        <item name="chan_usnews">News</item>
+        <item name="chan_worldnews">World News</item>
+        <item name="chan_uspolitics">Politics</item>
+        <item name="chan_geopolitics">World Politics</item>
+        <item name="chan_technology">Technology News</item>
+        <item name="chan_entertainment">Entertainment News</item>
+    </string-array>
+
+    <string-array name="channel_position">
+        <item name="chan_usnews">0</item>
+        <item name="chan_worldnews">1</item>
+        <item name="chan_uspolitics">2</item>
+        <item name="chan_geopolitics">3</item>
+        <item name="chan_technology">4</item>
+        <item name="chan_entertainment">5</item>
+    </string-array>
+
+    <!--Sorting Options-->
+    <string-array name="news_sorting_strings">
+        <item name="filter_hot">Hot</item>
+        <item name="filter_new">New</item>
+        <item name="filter_rising">Rising</item>
+        <item name="filter_controversial">Controversial</item>
+        <item name="filter_top">Top</item>
+    </string-array>
+
+    <!--See RedditRequest FILTER constants for reference-->
+    <string-array name="news_filter_values">
+        <item name="filter_hot">1</item>
+        <item name="filter_new">2</item>
+        <item name="filter_rising">3</item>
+        <item name="filter_controversial">4</item>
+        <item name="filter_top">5</item>
+    </string-array>
+
+</resources>
