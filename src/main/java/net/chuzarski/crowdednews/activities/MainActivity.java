@@ -1,3 +1,20 @@
+/**
+ *
+ * Copyright 2014 Cody Huzarski (chuzarski.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *
+ */
+
 package net.chuzarski.crowdednews.activities;
 
 import android.app.ActionBar;
@@ -61,7 +78,7 @@ public class MainActivity extends Activity {
 
     //Event Handlers
     private DrawerHandler navEventHandler;
-    private PageListener pager;
+    private PageListener pageLoader;
 
     //MISC resources
     private RedditSources mNewsSources;
@@ -80,13 +97,15 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //Start logging
         Timber.tag("MainActivity");
 
-        //Since this app is going to be released quickly, and we may have Activity Lifecycle quirks
-        //allow ONLY portrait orientation
+        //Since this app is going to be released quickly, we may have Activity Lifecycle quirks
+        //allow ONLY portrait orientation for now
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //UI References
@@ -100,7 +119,7 @@ public class MainActivity extends Activity {
         //MISC
         mNewsSources = new RedditSources();
         navEventHandler = new DrawerHandler();
-        pager = new PageListener();
+        pageLoader = new PageListener();
         filterDialog = createFilterDialog();
 
         //Settings
@@ -122,9 +141,9 @@ public class MainActivity extends Activity {
         jobs = CrowdedNewsApplication.getInstance().getJobManager();
         events.register(this);
 
-        //wire event handler
+        //wire event handlers
         vList.setOnItemClickListener(new ListHandler());
-        vList.setOnScrollListener(pager);
+        vList.setOnScrollListener(pageLoader);
 
         //app Session
         mSession = new AppSession();
@@ -136,13 +155,14 @@ public class MainActivity extends Activity {
         super.onStart();
         setActivitySettings();
 
-        initializeFirstPosts();
+        initializeFirstArticles();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        //anywhere else and you couldn't click on abTitle
         abTitle.setOnClickListener(new ButtonHandler());
 
     }
@@ -179,14 +199,14 @@ public class MainActivity extends Activity {
     }
 
     //-------------------------------------------------------------------------------
-    //      Job Methods
+    //      Jobqueue
     //-------------------------------------------------------------------------------
     private void dispatchRedditRetrieveJob(RedditJobParams params) {
         jobs.addJob(new RedditRetrieveJob(params));
     }
 
     //-------------------------------------------------------------------------------
-    //      Event Methods
+    //      EventBus
     //-------------------------------------------------------------------------------
 
     public void onEventMainThread(RedditRetrieveCompletedEvent event) {
@@ -235,12 +255,10 @@ public class MainActivity extends Activity {
     }
 
     //-------------------------------------------------------------------------------
-    //      Utility Methods
+    //      Article Methods
     //-------------------------------------------------------------------------------
-    private void handleResponse() {
-        //let the list know of these changes
-        mAdapter.addAll(mResponseData.getPosts());
-    }
+
+
 
     private void refreshAllArticles() {
         mAdapter.clearAllPosts();
@@ -297,34 +315,59 @@ public class MainActivity extends Activity {
         Timber.d("Fetching articles");
     }
 
-    private void initializeFirstPosts() {
+    private void initializeFirstArticles() {
 
-        if(pager.isPostLoadingEnabled()) {
-            pager.enablePostLoading(false);
+        //if posts do not exist in the dataset, post loading will crash the application
+        //if we switch to a different channel and clear the dataset, post loading will cause it to crash
+        //disable post loading and get ALL articles first, then re-enable for when the user scrolls
+        if(pageLoader.isPostLoadingEnabled()) {
+            pageLoader.enablePostLoading(false);
         }
         refreshAllArticles();
-        pager.enablePostLoading(true);
+        pageLoader.enablePostLoading(true);
+    }
+
+    //-------------------------------------------------------------------------------
+    //      Utility Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * mResponseData is modified, this method should be called
+     */
+    private void handleResponse() {
+        mAdapter.addAll(mResponseData.getPosts());
     }
 
     private void articleSourceSwitch(int chanNum) {
+        //notify session
         mSession.setSource(chanNum);
-        initializeFirstPosts();
+        //obvious
+        initializeFirstArticles();
     }
 
     private void articleFilterSwitch(int filter) {
         mSession.setFilter(filter);
-        initializeFirstPosts();
+        initializeFirstArticles();
     }
 
+    /**
+     * Load settings into activity state
+     */
     private void setActivitySettings() {
+        //could probably just reference the mSettings directly, this makes usage of the values
+        //easier in the activity
         this.mDefaultPostLimit = Integer.parseInt(mSettings.getString("setting_post_limit", "20"));
         this.mDefaultPostFilter = Integer.parseInt(mSettings.getString("setting_default_sort", "1"));
         this.mDefaultArticleSource = Integer.parseInt(mSettings.getString("setting_news_channel", "0"));
     }
 
 
-    //TODO this method will determine rather to use an external browser or the ArticleViewActivity
+    /**
+     * Open article in either ArticleView activity or any installed web browser
+     * @param pos position of the article in the dataset
+     */
     private void openArticle(int pos) {
+        //TODO this method will determine rather to use an external browser or the ArticleViewActivity
         //get the URL to open
         String url = mAdapter.getPosts().get(pos).getLinkURL();
 
@@ -345,6 +388,9 @@ public class MainActivity extends Activity {
     }
 
 
+    /**
+     * For handling Button Clicks
+     */
     private class ButtonHandler implements OnClickListener {
         @Override
         public void onClick(View v) {
@@ -357,6 +403,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Handles clicks on an article
+     */
     private class ListHandler implements OnItemClickListener {
 
         //TODO this needs to use the ArticleViewActivity
@@ -383,6 +432,10 @@ public class MainActivity extends Activity {
 
     }
 
+    /**
+     * VERY IMPORTANT this handles continuous scrolling
+     * loads articles as the user reaches the bottom of the List
+     */
     private class PageListener implements OnScrollListener {
         private int visibleConstraint = 8;
         private int lastKnownTotal;
@@ -414,7 +467,6 @@ public class MainActivity extends Activity {
                     if(totalItemCount > lastKnownTotal) {
                         loadingPage = false;
                         lastKnownTotal = totalItemCount;
-                        Timber.d("Not Loading more posts");
                     }
                 }
 

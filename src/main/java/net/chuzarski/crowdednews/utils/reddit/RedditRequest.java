@@ -1,3 +1,20 @@
+/**
+ *
+ * Copyright 2014 Cody Huzarski (chuzarski.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ *
+ */
+
 package net.chuzarski.crowdednews.utils.reddit;
 
 import java.io.BufferedInputStream;
@@ -25,10 +42,9 @@ public class RedditRequest {
     public static final int FILTER_CONTROVERSIAL = 4;
     public static final int FILTER_TOP = 5;
 
+
     private URL requestURL;
     private String urlString;
-
-    //required fields
     private String targetReddit;
     private int requestFilter;
 
@@ -38,8 +54,6 @@ public class RedditRequest {
     private String requestPostsBefore;
     private String requestPostsAfter;
 
-    //state
-    private int selfPosts;
 
     public static class Builder {
 
@@ -107,6 +121,10 @@ public class RedditRequest {
     }
 
 
+    /**
+     * Builds URL from Request parameters
+     * @return URL String
+     */
     private String buildURL() {
         String theURL = "http://www.reddit.com/";
 
@@ -150,6 +168,12 @@ public class RedditRequest {
         return theURL;
     }
 
+    /**
+     * Makes the request to Reddit
+     * @return RedditResponse Object
+     * @throws IOException
+     * @throws RedditException
+     */
     public RedditResponse fireRequest() throws IOException, RedditException {
         //create a connection
         HttpURLConnection connection = null;
@@ -168,6 +192,12 @@ public class RedditRequest {
         return response;
     }
 
+    /**
+     * Parses JSON from the reponse from Reddit, creates RedditResponse object
+     * @param json The JSON String from Reddit
+     * @return RedditResponse
+     * @throws RedditException
+     */
     private RedditResponse parseRedditData(String json) throws RedditException {
 
         JSONObject data;
@@ -224,18 +254,12 @@ public class RedditRequest {
 
     }
 
-    public void setCount(int count) {
-        if(count > 100) {
-            this.count = 100;
-            Timber.w("The post count was over 100, set to default of 100");
-        } else if (limit < 0) {
-            this.limit = 0;
-            Timber.w("A post count less than 0 was passed, set to the default of zero");
-        } else {
-            this.count = count;
-        }
-    }
-
+    /**
+     * Creates an ArrayList using a JSONArray
+     * @param postsJSON JSONArray of Reddit data
+     * @return ArrayList of RedditPost objects
+     * @throws RedditException
+     */
     private List<RedditPost> createPostList(JSONArray postsJSON) throws RedditException {
 
         List<RedditPost> posts = new ArrayList<RedditPost>();
@@ -251,7 +275,6 @@ public class RedditRequest {
                 if((e.getRedditErrorCode() == RedditErrors.REDDIT_SELF_POST)) {
                     //good job, well done
                     Timber.i("Caught self post");
-                    this.selfPosts++;
 
                 } else {
                     throw new RedditException(RedditErrors.REDDIT_PARSE_ERROR);
@@ -264,7 +287,7 @@ public class RedditRequest {
 
     /**
      * Creates a single RedditPost object from the given index of the postsJSONArray
-     * @return a RedditPost
+     * @return RedditPost
      * @throws JSONException
      */
     public RedditPost createSingleRedditPost(JSONObject postObj) throws JSONException, RedditException {
@@ -303,6 +326,18 @@ public class RedditRequest {
                 .build();
 
         return post;
+    }
+
+    public void setCount(int count) {
+        if(count > 100) {
+            this.count = 100;
+            Timber.w("The post count was over 100, set to default of 100");
+        } else if (limit < 0) {
+            this.limit = 0;
+            Timber.w("A post count less than 0 was passed, set to the default of zero");
+        } else {
+            this.count = count;
+        }
     }
 
     public String getRequestPostsBefore() {

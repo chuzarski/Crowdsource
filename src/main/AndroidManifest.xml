@@ -39,7 +39,7 @@
         </activity>
         <activity
             android:name="net.chuzarski.crowdednews.activities.LicenseActivity"
-            android:label="@string/title_activity_license" >
+            android:label="@string/software_licenses_string" >
         </activity>
     </application>
 
